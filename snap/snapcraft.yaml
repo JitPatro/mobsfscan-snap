@@ -1,0 +1,34 @@
+name: mobsfscan
+base: core22
+adopt-info: mobsfscan
+
+summary: Static analysis tool to find insecure code patterns in Android/iOS source code
+description: |
+  mobsfscan is a static analysis tool that can find insecure code patterns in your Android and iOS source code. Supports Java, Kotlin, Swift, and Objective C Code. mobsfscan uses MobSF static analysis rules and is powered by semgrep and libsast pattern matcher.
+
+  **Installation:-** `snap install mobsfscan`
+
+  **Usage:-** https://github.com/MobSF/mobsfscan
+
+grade: stable
+confinement: strict
+
+apps:
+  mobsfscan:
+    command: bin/mobsfscan
+    plugs: [home]
+
+
+parts:
+  mobsfscan:
+    plugin: python
+    source: https://github.com/MobSF/mobsfscan.git
+
+    build-packages:
+      - libsqlite3-dev
+
+    override-build: |
+      craftctl default
+      craftctl set version=$(git describe --tags | awk -F- '{ printf "v"$1 }')
+      shopt -s extglob
+      rm -rf $CRAFT_PART_INSTALL/lib/python3.10/site-packages/{pip,setuptools,wheel,!(jschema_to_python*).dist-info}
