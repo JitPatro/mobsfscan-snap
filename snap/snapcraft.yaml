@@ -20,6 +20,14 @@ apps:
 
 
 parts:
+  snapcraft-preload:
+    source: https://github.com/sergiusens/snapcraft-preload.git
+    plugin: cmake
+    build-packages:
+      - on amd64:
+        - gcc-multilib
+        - g++-multilib
+        
   mobsfscan:
     plugin: python
     source: https://github.com/MobSF/mobsfscan.git
@@ -31,7 +39,13 @@ parts:
       craftctl default
       craftctl set version=$(git describe --tags | awk -F- '{ printf "v"$1 }')
       echo -e '#!/usr/bin/env bash\n\necho $(pwd) | grep -E "^/root|^/home" >/dev/null;\n' > $CRAFT_PART_INSTALL/bin/run
-      echo 'if [ "$?" == "0" ]; then mobsfscan "$@"; else echo "snap: (Permission denied)"; fi' >> $CRAFT_PART_INSTALL/bin/run
+      echo 'if [ "$?" == "0" ]; then snapcraft-preload mobsfscan "$@"; else echo "snap: (Permission denied)"; fi' >> $CRAFT_PART_INSTALL/bin/run
       chmod +x $CRAFT_PART_INSTALL/bin/run
       shopt -s extglob
       rm -rf $CRAFT_PART_INSTALL/lib/python3.10/site-packages/{pip,setuptools,wheel,!(jschema_to_python*).dist-info}
+
+    override-prime: |
+      craftctl default
+      mv usr/local/bin/snapcraft-preload bin/
+      mv usr/local/lib/lib* lib/
+      rm -rf usr/
