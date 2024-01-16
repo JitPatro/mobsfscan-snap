@@ -29,6 +29,7 @@ parts:
         - g++-multilib
         
   mobsfscan:
+    after: [snapcraft-preload]
     plugin: python
     source: https://github.com/MobSF/mobsfscan.git
 
